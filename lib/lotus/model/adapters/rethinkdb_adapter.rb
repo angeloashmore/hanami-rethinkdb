@@ -7,6 +7,12 @@ require 'rethinkdb'
 module Lotus
   module Model
     module Adapters
+      # Adapter for RethinkDB databases
+      #
+      # @see Lotus::Model::Adapters::Implementation
+      #
+      # @api private
+      # @since 0.1.0
       class RethinkdbAdapter < Abstract
         include ::RethinkDB::Shortcuts
 

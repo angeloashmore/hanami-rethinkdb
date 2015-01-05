@@ -5,6 +5,10 @@ module Lotus
   module Model
     module Adapters
       module Rethinkdb
+        # Maps a RethinkDB database table and perfoms manipulations on it.
+        #
+        # @api private
+        # @since 0.1.0
         class Collection < SimpleDelegator
           include RethinkDB::Shortcuts
 
