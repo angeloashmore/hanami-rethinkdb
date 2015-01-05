@@ -59,23 +59,6 @@ module Lotus
           end
 
           alias_method :clear, :delete
-
-          # Returns an unique record from the given collection with the given
-          # id.
-          #
-          # @param key [Array] the identity of the object
-          #
-          # @see Lotus::Model::Adapters::Rethinkdb::Collection#get
-          #
-          # @return [Object] the entity
-          #
-          # @api private
-          # @since 0.1.0
-          def get(id)
-            @collection.get(id)
-          end
-
-          alias_method :find, :get
         end
       end
     end

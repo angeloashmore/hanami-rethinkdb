@@ -70,25 +70,6 @@ module Lotus
             end
           end
 
-          # Returns an unique document from the given collection with the given
-          # id.
-          #
-          # @param key [Array] the identity of the object
-          #
-          # @see Lotus::Model::Adapters::Rethinkdb::Command#get
-          #
-          # @return [Hash] the serialized record
-          #
-          # @api private
-          # @since 0.1.0
-          def get(id)
-            _deserialize(
-              _run do
-                super(id)
-              end
-            )
-          end
-
           # Filters the current scope with a `filter` directive.
           #
           # @param args [Array] the array of arguments
