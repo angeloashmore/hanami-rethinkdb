@@ -133,8 +133,8 @@ module Lotus
         # @raise [NotImplementedError]
         #
         # @since 0.1.0
-        def first(collection)
-          raise NotImplementedError
+        def first(_collection)
+          fail NotImplementedError
         end
 
         # This method is not implemented. RethinkDB does not have sequential
@@ -145,8 +145,8 @@ module Lotus
         # @raise [NotImplementedError]
         #
         # @since 0.1.0
-        def last(collection)
-          raise NotImplementedError
+        def last(_collection)
+          fail NotImplementedError
         end
 
         # Deletes all the documents from the given collection.

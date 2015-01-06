@@ -29,7 +29,7 @@ module Lotus
         class Query
           include RethinkDB::Shortcuts
           include Enumerable
-          extend  Forwardable
+          extend Forwardable
 
           def_delegators :all, :each, :to_s, :empty?
 
@@ -91,7 +91,8 @@ module Lotus
           #
           #   # => r.filter(language: 'ruby').filter('framework: 'lotus')
           def where(condition = nil, &blk)
-            condition = (condition or blk or raise ArgumentError.new('You need to specify a condition.'))
+            condition = condition || blk ||
+                        fail(ArgumentError, 'You need to specify a condition.')
             conditions.push([:filter, condition])
             self
           end
@@ -241,7 +242,7 @@ module Lotus
           def scoped
             scope = @collection
 
-            conditions.each do |(method,*args)|
+            conditions.each do |(method, *args)|
               scope = scope.public_send(method, *args)
             end
 
@@ -271,10 +272,11 @@ module Lotus
           #
           # This is used to combine queries together in a Repository.
           #
-          # @param query [Lotus::Model::Adapters::Rethinkdb::Query] the query to apply
+          # @param query [Lotus::Model::Adapters::Rethinkdb::Query] the query
+          #   to apply
           #
-          # @return [Lotus::Model::Adapters::Rethinkdb::Query] a new query with the
-          #   merged conditions
+          # @return [Lotus::Model::Adapters::Rethinkdb::Query] a new query with
+          #   the merged conditions
           #
           # @api private
           # @since 0.1.0
@@ -302,11 +304,12 @@ module Lotus
           #
           #   # The code above combines two queries: `rank` and `by_author`.
           #   #
-          #   # The first class method `rank` returns a `Rethinkdb::Query` instance
-          #   # which doesn't respond to `by_author`. How to solve this problem?
+          #   # The first class method `rank` returns a `Rethinkdb::Query`
+          #   # instance which doesn't respond to `by_author`. How to solve
+          #   # this problem?
           #   #
-          #   # 1. When we use `query` to fabricate a `Rethinkdb::Query` we pass the
-          #   # current context (the repository itself) to the query
+          #   # 1. When we use `query` to fabricate a `Rethinkdb::Query` we
+          #   # pass the current context (the repository itself) to the query
           #   # initializer.
           #   #
           #   # 2. When that query receives the `by_author` message, it's

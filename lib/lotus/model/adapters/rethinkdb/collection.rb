@@ -41,11 +41,11 @@ module Lotus
           # @api private
           # @since 0.1.0
           def insert(entity)
-            _run do
+            response = _run do
               super(_serialize(entity))
-            end.tap do |response|
-              return response['generated_keys'].first
             end
+
+            response['generated_keys'].first
           end
 
           # Updates the document corresponding to the given entity.

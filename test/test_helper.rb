@@ -2,7 +2,7 @@ require 'rubygems'
 require 'bundler/setup'
 
 require 'minitest/autorun'
-$:.unshift 'lib'
+$LOAD_PATH.unshift 'lib'
 require 'lotus-rethinkdb'
 
 include RethinkDB::Shortcuts

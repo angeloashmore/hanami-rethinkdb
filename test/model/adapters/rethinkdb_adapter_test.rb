@@ -2,6 +2,7 @@ require 'test_helper'
 
 describe Lotus::Model::Adapters::RethinkdbAdapter do
   before do
+    # rubocop:disable Documentation
     class TestUser
       include Lotus::Entity
       attributes :id, :name, :age
@@ -11,13 +12,15 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
       include Lotus::Repository
     end
 
-    TestDevice = Struct.new(:id) do
+    class TestDevice
       include Lotus::Entity
+      attributes :id
     end
 
     class TestDeviceRepository
       include Lotus::Repository
     end
+    # rubocop:enable Documentation
 
     @mapper = Lotus::Model::Mapper.new do
       collection :test_users do
@@ -62,7 +65,7 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
       @adapter.create(:test_users, user)
       @adapter.create(:test_devices, device)
 
-      @adapter.all(:test_users).must_equal   [user]
+      @adapter.all(:test_users).must_equal [user]
       @adapter.all(:test_devices).must_equal [device]
     end
   end
@@ -283,9 +286,9 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
         it 'returns selected records' do
           id = user1.id
 
-          query = Proc.new {
+          query = proc do
             where(id: id)
-          }
+          end
 
           result = @adapter.query(collection, &query).all
           result.must_equal [user1]
@@ -295,9 +298,9 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
           id   = user1.id
           name = user1.name
 
-          query = Proc.new {
+          query = proc do
             where(id: id).where(name: name)
-          }
+          end
 
           result = @adapter.query(collection, &query).all
           result.must_equal [user1]
@@ -307,21 +310,22 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
           id   = user1.id
           name = user1.name
 
-          query = Proc.new {
+          query = proc do
             where(id: id).and(name: name)
-          }
+          end
 
           result = @adapter.query(collection, &query).all
           result.must_equal [user1]
         end
 
         it 'raises an error if you dont specify condition or block' do
-          -> {
-            query = Proc.new {
-              where()
-            }
+          lambda do
+            query = proc do
+              where
+            end
+
             @adapter.query(collection, &query).all
-          }.must_raise(ArgumentError)
+          end.must_raise(ArgumentError)
         end
       end
     end
@@ -349,14 +353,14 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
         let(:users) { [user1, user2, user3] }
 
         it 'returns the selected columns from all the records' do
-          query = Proc.new {
+          query = proc do
             pluck(:age)
-          }
+          end
 
           result = @adapter.query(collection, &query).all
 
           users.each do |user|
-            record = result.find {|r| r.age == user.age }
+            record = result.find { |r| r.age == user.age }
             record.wont_be_nil
             record.name.must_be_nil
           end
@@ -365,9 +369,9 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
         it 'returns only the select of requested records' do
           name = user2.name
 
-          query = Proc.new {
+          query = proc do
             where(name: name).pluck(:age)
-          }
+          end
 
           result = @adapter.query(collection, &query).all
 
@@ -379,9 +383,9 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
         it 'returns only the multiple select of requested records' do
           name = user2.name
 
-          query = Proc.new {
+          query = proc do
             where(name: name).pluck(:name, :age)
-          }
+          end
 
           result = @adapter.query(collection, &query).all
 
@@ -411,27 +415,27 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
         end
 
         it 'returns sorted records' do
-          query = Proc.new {
+          query = proc do
             order(:age)
-          }
+          end
 
           result = @adapter.query(collection, &query).all
           result.must_equal [user2, user1]
         end
 
         it 'returns sorted records, using multiple columns' do
-          query = Proc.new {
+          query = proc do
             order(:age, :name)
-          }
+          end
 
           result = @adapter.query(collection, &query).all
           result.must_equal [user2, user1]
         end
 
         it 'returns sorted records, using multiple invokations' do
-          query = Proc.new {
+          query = proc do
             order(:age).order(:name)
-          }
+          end
 
           result = @adapter.query(collection, &query).all
           result.must_equal [user1, user2]
@@ -457,9 +461,9 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
         end
 
         it 'returns sorted records' do
-          query = Proc.new {
+          query = proc do
             asc(:age)
-          }
+          end
 
           result = @adapter.query(collection, &query).all
           result.must_equal [user2, user1]
@@ -485,27 +489,27 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
         end
 
         it 'returns reverse sorted records' do
-          query = Proc.new {
+          query = proc do
             desc(:age)
-          }
+          end
 
           result = @adapter.query(collection, &query).all
           result.must_equal [user1, user2]
         end
 
         it 'returns sorted records, using multiple columns' do
-          query = Proc.new {
+          query = proc do
             desc(:age, :name)
-          }
+          end
 
           result = @adapter.query(collection, &query).all
           result.must_equal [user1, user2]
         end
 
         it 'returns sorted records, using multiple invokations' do
-          query = Proc.new {
+          query = proc do
             desc(:age).desc(:name)
-          }
+          end
 
           result = @adapter.query(collection, &query).all
           result.must_equal [user2, user1]
@@ -534,9 +538,9 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
         it 'returns only the number of requested records' do
           name = user2.name
 
-          query = Proc.new {
+          query = proc do
             where(name: name).limit(1)
-          }
+          end
 
           result = @adapter.query(collection, &query).all
           result.length == 1
