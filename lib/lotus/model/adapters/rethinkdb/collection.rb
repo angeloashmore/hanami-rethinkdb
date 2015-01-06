@@ -1,4 +1,5 @@
 require 'delegate'
+require 'active_support/core_ext/hash/indifferent_access'
 require 'rethinkdb'
 
 module Lotus
@@ -164,14 +165,20 @@ module Lotus
             @mapped_collection.serialize(entity)
           end
 
-          # Deerialize a set of documents fetched from the database.
+          # Deserialize a set of documents fetched from the database.
+          #
+          # @note ActiveSupport's HashWithIndifferentAccess is used to solve an
+          #   incompatability between Lotus::Model's use of symbols and
+          #   RethinkDB's use of strings.
           #
           # @param documents [Array] a set of raw documents
           #
           # @api private
           # @since 0.1.0
           def _deserialize(documents)
-            @mapped_collection.deserialize(documents)
+            @mapped_collection.deserialize(
+              documents.map(&:with_indifferent_access)
+            )
           end
 
           # Returns a collection with the connection automatically included.
