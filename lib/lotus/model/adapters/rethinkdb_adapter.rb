@@ -128,7 +128,7 @@ module Lotus
         # This method is not implemented. RethinkDB does not have sequential
         # primary keys.
         #
-        # @param collection [Symbol] the target collection (it must be mapped)
+        # @param _collection [Symbol] the target collection (it must be mapped)
         #
         # @raise [NotImplementedError]
         #
@@ -140,7 +140,7 @@ module Lotus
         # This method is not implemented. RethinkDB does not have sequential
         # primary keys.
         #
-        # @param collection [Symbol] the target collection (it must be mapped)
+        # @param _collection [Symbol] the target collection (it must be mapped)
         #
         # @raise [NotImplementedError]
         #
