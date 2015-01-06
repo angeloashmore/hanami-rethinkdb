@@ -18,7 +18,7 @@ module Lotus
           # @param connection [RethinkDB::Connection] the connection to the
           #   database
           # @param dataset [RethinkDB::RQL] the dataset that maps a table or a
-          #   subset of it.
+          #   subset of it
           # @param mapped_collection [Lotus::Model::Mapping::Collection] a
           #   mapped collection
           #
@@ -168,7 +168,7 @@ module Lotus
           # Deserialize a set of documents fetched from the database.
           #
           # @note ActiveSupport's HashWithIndifferentAccess is used to solve an
-          #   incompatability between Lotus::Model's use of symbols and
+          #   incompatibility between Lotus::Model's use of symbols and
           #   RethinkDB's use of strings.
           #
           # @param documents [Array] a set of raw documents
