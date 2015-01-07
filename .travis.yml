@@ -18,5 +18,6 @@ before_script:
   - wget -qO- http://download.rethinkdb.com/apt/pubkey.gpg | sudo apt-key add -
   - sudo apt-get update -q
   - sudo apt-get install rethinkdb
+  - sudo service rethinkdb restart
   - rethinkdb admin create table test_users --database test
   - rethinkdb admin create table test_devices --database test
