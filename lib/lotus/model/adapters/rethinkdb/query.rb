@@ -90,6 +90,12 @@ module Lotus
           #        .where(framework: 'lotus')
           #
           #   # => r.filter(language: 'ruby').filter('framework: 'lotus')
+          #
+          # @example Blocks
+          #
+          #   query.where { |doc| doc['age'] > 10 }
+          #
+          #   # => r.filter { |doc| doc.bracket('age').gt('10') }
           def where(condition = nil, &blk)
             condition = condition || blk ||
                         fail(ArgumentError, 'You need to specify a condition.')

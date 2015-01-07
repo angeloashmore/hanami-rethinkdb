@@ -318,6 +318,17 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
           result.must_equal [user1]
         end
 
+        it 'can use a block' do
+          age = user1.age
+
+          query = proc do
+            where { |user| user['age'].eq(age) }
+          end
+
+          result = @adapter.query(collection, &query).all
+          result.must_equal [user1]
+        end
+
         it 'raises an error if you dont specify condition or block' do
           lambda do
             query = proc do
