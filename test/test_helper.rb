@@ -9,5 +9,21 @@ include RethinkDB::Shortcuts
 
 RETHINKDB_TEST_CONNECTION = r.connect
 
-r.table('test_users').delete.run(RETHINKDB_TEST_CONNECTION)
-r.table('test_devices').delete.run(RETHINKDB_TEST_CONNECTION)
+def run
+  yield.run(RETHINKDB_TEST_CONNECTION)
+end
+
+begin
+  run { r.table_create('test_users') }
+rescue RethinkDB::RqlRuntimeError => _e
+  puts 'Table `test_users` already exists'
+end
+
+begin
+  run { r.table_create('test_devices') }
+rescue RethinkDB::RqlRuntimeError => _e
+  puts 'Table `test_devices` already exists'
+end
+
+run { r.table('test_users').delete }
+run { r.table('test_devices').delete }
