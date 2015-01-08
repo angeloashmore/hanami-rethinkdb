@@ -5,6 +5,9 @@ require 'minitest/autorun'
 $LOAD_PATH.unshift 'lib'
 require 'lotus-rethinkdb'
 
+require 'coveralls'
+Coveralls.wear!
+
 include RethinkDB::Shortcuts
 
 RETHINKDB_TEST_URI = 'rethinkdb://localhost:28015/test'
