@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.email         = ['angeloashmore@gmail.com']
   spec.summary       = 'RethinkDB adapter for Lotus::Model'
   spec.description   = 'RethinkDB adapter for Lotus::Model'
-  spec.homepage      = ''
+  spec.homepage      = 'https://github.com/angeloashmore/lotus-rethinkdb'
   spec.license       = 'MIT'
 
   spec.files         = `git ls-files`.split("\n")
@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency 'lotus-model',   '~> 0.2'
   spec.add_runtime_dependency 'rethinkdb',     '~> 1.15'
-  spec.add_runtime_dependency 'activesupport', '~> 4.2.0'
+  spec.add_runtime_dependency 'activesupport', '~> 4.2'
 
   spec.add_development_dependency 'bundler',       '~> 1.7'
   spec.add_development_dependency 'minitest',      '~> 5.5'
