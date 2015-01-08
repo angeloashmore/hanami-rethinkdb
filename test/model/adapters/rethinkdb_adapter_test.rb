@@ -263,7 +263,7 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
       @adapter.clear(collection)
     end
 
-    let(:user1) { TestUser.new(name: 'L', age: '32') }
+    let(:user1) { TestUser.new(name: 'L', age: 32) }
     let(:user2) { TestUser.new(name: 'MG', age: 31) }
 
     describe 'where' do
@@ -404,6 +404,67 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
           record.name.must_equal(user2.name)
           record.age.must_equal(user2.age)
           record.id.must_be_nil
+        end
+      end
+    end
+
+    describe 'has_fields' do
+      describe 'with an empty collection' do
+        it 'returns an empty result' do
+          result = @adapter.query(collection) do
+            has_fields(:age)
+          end.all
+
+          result.must_be_empty
+        end
+      end
+
+      describe 'with a filled collection' do
+        before do
+          @adapter.create(collection, user1)
+          @adapter.create(collection, user2)
+          @adapter.create(collection, user3)
+        end
+
+        let(:user1) { TestUser.new(name: 'L', age: 32) }
+        let(:user3) { TestUser.new(name: 'S') }
+        let(:users) { [user1, user2, user3] }
+
+        it 'returns documents that have the selected fields' do
+          query = proc do
+            has_fields(:age)
+          end
+
+          result = @adapter.query(collection, &query).all
+          result.each do |user|
+            user.age.wont_be_nil
+          end
+        end
+
+        it 'returns only the select of requested records' do
+          name = user2.name
+
+          query = proc do
+            where(name: name).pluck(:age)
+          end
+
+          result = @adapter.query(collection, &query).all
+          result.each do |user|
+            user.age.wont_be_nil
+          end
+        end
+
+        it 'returns only the multiple select of requested records' do
+          name = user2.name
+
+          query = proc do
+            where(name: name).pluck(:name, :age)
+          end
+
+          result = @adapter.query(collection, &query).all
+          result.each do |user|
+            user.age.wont_be_nil
+          end
         end
       end
     end
@@ -555,6 +616,292 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
 
           result = @adapter.query(collection, &query).all
           result.length == 1
+        end
+      end
+    end
+
+    describe 'count' do
+      describe 'with an empty collection' do
+        it 'returns 0' do
+          result = @adapter.query(collection) do
+            all
+          end.count
+
+          result.must_equal 0
+        end
+      end
+
+      describe 'with a filled collection' do
+        before do
+          @adapter.create(collection, user1)
+          @adapter.create(collection, user2)
+        end
+
+        it 'returns the count of all the records' do
+          query = proc do
+            all
+          end
+
+          result = @adapter.query(collection, &query).count
+          result.must_equal 2
+        end
+
+        it 'returns the count from an empty query block' do
+          query = proc do
+          end
+
+          result = @adapter.query(collection, &query).count
+          result.must_equal 2
+        end
+
+        it 'returns only the count of requested records' do
+          name = user2.name
+
+          query = proc do
+            where(name: name)
+          end
+
+          result = @adapter.query(collection, &query).count
+          result.must_equal 1
+        end
+      end
+    end
+
+    describe 'sum' do
+      describe 'with an empty collection' do
+        it 'returns 0' do
+          result = @adapter.query(collection) do
+            all
+          end.sum(:age)
+
+          result.must_equal 0
+        end
+      end
+
+      describe 'with a filled collection' do
+        before do
+          @adapter.create(collection, user1)
+          @adapter.create(collection, user2)
+          @adapter.create(collection, TestUser.new(name: 'S'))
+        end
+
+        it 'returns the sum of all the records' do
+          query = proc do
+            all
+          end
+
+          result = @adapter.query(collection, &query).sum(:age)
+          result.must_equal 63
+        end
+
+        it 'returns the sum from an empty query block' do
+          query = proc {}
+
+          result = @adapter.query(collection, &query).sum(:age)
+          result.must_equal 63
+        end
+
+        it 'returns only the sum of requested records' do
+          name = user2.name
+
+          query = proc do
+            where(name: name)
+          end
+
+          result = @adapter.query(collection, &query).sum(:age)
+          result.must_equal 31
+        end
+      end
+    end
+
+    describe 'average' do
+      describe 'with an empty collection' do
+        it 'returns nil' do
+          result = @adapter.query(collection) do
+            all
+          end.average(:age)
+
+          result.must_be_nil
+        end
+      end
+
+      describe 'with a filled collection' do
+        before do
+          @adapter.create(collection, user1)
+          @adapter.create(collection, user2)
+          @adapter.create(collection, TestUser.new(name: 'S'))
+        end
+
+        it 'returns the average of all the records' do
+          query = proc do
+            all
+          end
+
+          result = @adapter.query(collection, &query).average(:age)
+          result.must_equal 31.5
+        end
+
+        it 'returns the average from an empty query block' do
+          query = proc {}
+
+          result = @adapter.query(collection, &query).average(:age)
+          result.must_equal 31.5
+        end
+
+        it 'returns only the average of requested records' do
+          name = user2.name
+
+          query = proc do
+            where(name: name)
+          end
+
+          result = @adapter.query(collection, &query).average(:age)
+          result.must_equal 31
+        end
+      end
+    end
+
+    describe 'avg' do
+      let(:user1) { TestUser.new(name: 'L', age: 32) }
+      let(:user2) { TestUser.new(name: 'MG', age: 31) }
+
+      describe 'with an empty collection' do
+        it 'returns nil' do
+          result = @adapter.query(collection) do
+            all
+          end.avg(:age)
+
+          result.must_be_nil
+        end
+      end
+
+      describe 'with a filled collection' do
+        before do
+          @adapter.create(collection, user1)
+          @adapter.create(collection, user2)
+          @adapter.create(collection, TestUser.new(name: 'S'))
+        end
+
+        it 'returns the average of all the records' do
+          query = proc do
+            all
+          end
+
+          result = @adapter.query(collection, &query).avg(:age)
+          result.must_equal 31.5
+        end
+
+        it 'returns the average from an empty query block' do
+          query = proc {}
+
+          result = @adapter.query(collection, &query).avg(:age)
+          result.must_equal 31.5
+        end
+
+        it 'returns only the average of requested records' do
+          name = user2.name
+
+          query = proc do
+            where(name: name)
+          end
+
+          result = @adapter.query(collection, &query).avg(:age)
+          result.must_equal 31
+        end
+      end
+    end
+
+    describe 'max' do
+      describe 'with an empty collection' do
+        it 'returns nil' do
+          result = @adapter.query(collection) do
+            all
+          end.max(:age)
+
+          result.must_be_nil
+        end
+      end
+
+      describe 'with a filled collection' do
+        before do
+          @adapter.create(collection, user1)
+          @adapter.create(collection, user2)
+          @adapter.create(collection, TestUser.new(name: 'S'))
+        end
+
+        it 'returns the maximum of all the records' do
+          query = proc do
+            all
+          end
+
+          result = @adapter.query(collection, &query).max(:age)
+          result.must_equal 32
+        end
+
+        it 'returns the maximum from an empty query block' do
+          query = proc do
+          end
+
+          result = @adapter.query(collection, &query).max(:age)
+          result.must_equal 32
+        end
+
+        it 'returns only the maximum of requested records' do
+          name = user2.name
+
+          query = proc do
+            where(name: name)
+          end
+
+          result = @adapter.query(collection, &query).max(:age)
+          result.must_equal 31
+        end
+      end
+    end
+
+    describe 'min' do
+      describe 'with an empty collection' do
+        it 'returns nil' do
+          result = @adapter.query(collection) do
+            all
+          end.min(:age)
+
+          result.must_be_nil
+        end
+      end
+
+      describe 'with a filled collection' do
+        before do
+          @adapter.create(collection, user1)
+          @adapter.create(collection, user2)
+          @adapter.create(collection, TestUser.new(name: 'S'))
+        end
+
+        it 'returns the minimum of all the records' do
+          query = proc do
+            all
+          end
+
+          result = @adapter.query(collection, &query).min(:age)
+          result.must_equal 31
+        end
+
+        it 'returns the minimum from an empty query block' do
+          query = proc {}
+
+          result = @adapter.query(collection, &query).min(:age)
+          result.must_equal 31
+        end
+
+        it 'returns only the minimum of requested records' do
+          name = user1.name
+
+          query = proc do
+            where(name: name)
+          end
+
+          result = @adapter.query(collection, &query).min(:age)
+          result.must_equal 32
         end
       end
     end

@@ -105,6 +105,21 @@ module Lotus
             _collection(super, @mapped_collection)
           end
 
+          # Filters the current scope with a `has_fields` directive.
+          #
+          # @param args [Array] the array of arguments
+          #
+          # @see Lotus::Model::Adapters::Rethinkdb::Query#has_fields
+          #
+          # @return [Lotus::Model::Adapters::Rethinkdb::Collection] the filtered
+          #   collection
+          #
+          # @api private
+          # @since 0.1.0
+          def has_fields(*args) # rubocop:disable Style/PredicateName
+            _collection(super, @mapped_collection)
+          end
+
           # Filters the current scope with a `limit` directive.
           #
           # @param args [Array] the array of arguments
@@ -134,6 +149,86 @@ module Lotus
           # @since 0.1.0
           def order_by(*args)
             _collection(super, @mapped_collection)
+          end
+
+          # Returns the sum of the values for the given field.
+          #
+          # @param args [Array] the array of arguments
+          #
+          # @see Lotus::Model::Adapters::Rethinkdb::Query#sum
+          #
+          # @return [Numeric]
+          #
+          # @api private
+          # @since 0.1.0
+          def sum(*args)
+            _run do
+              super
+            end
+          end
+
+          # Returns the average of the values for the given column.
+          #
+          # @param args [Array] the array of arguments
+          #
+          # @see Lotus::Model::Adapters::Rethinkdb::Query#avg
+          #
+          # @return [Numeric]
+          #
+          # @api private
+          # @since 0.1.0
+          def avg(*args)
+            _run do
+              super.default(nil)
+            end
+          end
+
+          # Returns the maximum value for the given field.
+          #
+          # @param args [Array] the array of arguments
+          #
+          # @see Lotus::Model::Adapters::Rethinkdb::Query#max
+          #
+          # @return [Numeric]
+          #
+          # @api private
+          # @since 0.1.0
+          def max(field, *args)
+            _run do
+              super[field].default(nil)
+            end
+          end
+
+          # Returns the minimum value for the given field.
+          #
+          # @param args [Array] the array of arguments
+          #
+          # @see Lotus::Model::Adapters::Rethinkdb::Query#min
+          #
+          # @return [Numeric]
+          #
+          # @api private
+          # @since 0.1.0
+          def min(field, *args)
+            _run do
+              super[field].default(nil)
+            end
+          end
+
+          # Returns a count of the documents for the current conditions.
+          #
+          # @param args [Array] the array of arguments
+          #
+          # @see Lotus::Model::Adapters::Rethinkdb::Query#count
+          #
+          # @return [Numeric]
+          #
+          # @api private
+          # @since 0.1.0
+          def count
+            _run do
+              super
+            end
           end
 
           # Resolves self by fetching the documents from the database and

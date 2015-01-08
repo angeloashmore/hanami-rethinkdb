@@ -14,7 +14,7 @@ conn = r.connect
 [:test_users, :test_devices].each do |t_name|
   begin
     r.table_create(t_name).run(conn)
-  rescue RethinkDB::RqlRuntimeError => e
+  rescue RethinkDB::RqlRuntimeError => _e
     puts "Table `#{t_name}` already exists"
   end
 

@@ -132,6 +132,30 @@ module Lotus
             self
           end
 
+          # Only include documents with the given fields.
+          #
+          # @param fields [Array<Symbol>]
+          #
+          # @return self
+          #
+          # @since 0.1.0
+          #
+          # @example Single column
+          #
+          #   query.has_fields(:name)
+          #
+          #   # => r.has_fields(:name)
+          #
+          # @example Multiple columns
+          #
+          #   query.has_fields(:name, :year)
+          #
+          #   # => r.has_fields(:name, :year)
+          def has_fields(*fields) # rubocop:disable Style/PredicateName
+            conditions.push([:has_fields, *fields])
+            self
+          end
+
           # Limit the number of documents to return.
           #
           # This operation is performed at the database level with r.limit().
@@ -229,12 +253,110 @@ module Lotus
           #
           # @example Mixed fields and index
           #
-          #   query.desc(r.desc(:name), r.desc(:year), index: r.desc(:date))
+          #   query.desc(:name, :year, { index: r.desc(:date) })
           #
-          #   # => r.order_by(:name, :year, index: :date)
+          #   # => r.order_by(r.desc(:name), r.desc(:year), { index:
+          #                   r.desc(:date) })
           def desc(*fields)
             conditions.push([:order_by, *_desc_wrapper(*fields)])
             self
+          end
+
+          # Returns the sum of the values for the given field.
+          #
+          # @param field [Symbol] the field name
+          #
+          # @return [Numeric]
+          #
+          # @since 0.1.0
+          #
+          # @example
+          #
+          #    query.sum(:comments_count)
+          #
+          #    # => r.sum(:comments_count)
+          def sum(field)
+            scoped.sum(field)
+          end
+
+          # Returns the average of the values for the given field.
+          #
+          # @param field [Symbol] the column name
+          #
+          # @return [Numeric]
+          #
+          # @since 0.1.0
+          #
+          # @example
+          #
+          #    query.average(:comments_count)
+          #
+          #    # => r.avg(:comments_count)
+          def average(field)
+            scoped.avg(field)
+          end
+
+          alias_method :avg, :average
+
+          # Returns the maximum value for the given field.
+          #
+          # @param field [Symbol] the field name
+          #
+          # @return result
+          #
+          # @since 0.1.0
+          #
+          # @example With numeric type
+          #
+          #    query.max(:comments_count)
+          #
+          #    # r.max(:comments_count)
+          #
+          # @example With string type
+          #
+          #    query.max(:title)
+          #
+          #    # => r.max(:title)
+          def max(field)
+            has_fields(field)
+            scoped.max(field)
+          end
+
+          # Returns the minimum value for the given field.
+          #
+          # @param field [Symbol] the field name
+          #
+          # @return result
+          #
+          # @since 0.1.0
+          #
+          # @example With numeric type
+          #
+          #    query.min(:comments_count)
+          #
+          #    # => r.min(:comments_count)
+          #
+          # @example With string type
+          #
+          #    query.min(:title)
+          #
+          #    # => r.min(:title)
+          def min(field)
+            has_fields(field)
+            scoped.min(field)
+          end
+
+          # Returns a count of the records for the current conditions.
+          #
+          # @return [Fixnum]
+          #
+          # @since 0.1.0
+          #
+          # @example
+          #
+          #    query.where(author_id: 23).count # => 5
+          def count
+            scoped.count
           end
 
           # Apply all the conditions and returns a filtered collection.
