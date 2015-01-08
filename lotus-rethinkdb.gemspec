@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency 'rethinkdb',     '~> 1.15'
   spec.add_runtime_dependency 'activesupport', '~> 4.2'
 
-  spec.add_development_dependency 'bundler',       '~> 1.7'
+  spec.add_development_dependency 'bundler',       '~> 1.6'
   spec.add_development_dependency 'minitest',      '~> 5.5'
   spec.add_development_dependency 'minitest-line', '~> 0.6.2'
   spec.add_development_dependency 'rake',          '~> 10.0'
