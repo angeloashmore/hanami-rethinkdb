@@ -39,7 +39,7 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
     end.load!
 
     @adapter = Lotus::Model::Adapters::RethinkdbAdapter.new(
-      @mapper, RETHINKDB_TEST_CONNECTION
+      @mapper, RETHINKDB_TEST_URI
     )
   end
 

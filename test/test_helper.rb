@@ -7,23 +7,16 @@ require 'lotus-rethinkdb'
 
 include RethinkDB::Shortcuts
 
-RETHINKDB_TEST_CONNECTION = r.connect
+RETHINKDB_TEST_URI = 'rethinkdb://localhost:28015/test'
 
-def run
-  yield.run(RETHINKDB_TEST_CONNECTION)
+conn = r.connect
+
+[:test_users, :test_devices].each do |t_name|
+  begin
+    r.table_create(t_name).run(conn)
+  rescue RethinkDB::RqlRuntimeError => e
+    puts "Table `#{t_name}` already exists"
+  end
+
+  r.table(t_name).delete
 end
-
-begin
-  run { r.table_create('test_users') }
-rescue RethinkDB::RqlRuntimeError => _e
-  puts 'Table `test_users` already exists'
-end
-
-begin
-  run { r.table_create('test_devices') }
-rescue RethinkDB::RqlRuntimeError => _e
-  puts 'Table `test_devices` already exists'
-end
-
-run { r.table('test_users').delete }
-run { r.table('test_devices').delete }

@@ -16,6 +16,13 @@ module Lotus
       class RethinkdbAdapter < Abstract
         include ::RethinkDB::Shortcuts
 
+        # @attr_reader parsed_uri [Hash] the database connection details parsed
+        #   from a URI
+        #
+        # @since 0.1.0
+        # @api private
+        attr_reader :parsed_uri
+
         # Initialize the adapter.
         #
         # Lotus::Model uses RethinkDB.
@@ -30,9 +37,9 @@ module Lotus
         #
         # @api private
         # @since 0.1.0
-        def initialize(mapper, connection)
-          super(mapper)
-          @connection = connection
+        def initialize(mapper, uri)
+          super
+          @connection = r.connect(_parse_uri)
         end
 
         # Creates or updates a document in the database for the given entity.
@@ -191,6 +198,26 @@ module Lotus
         end
 
         private
+
+        # Sets a parsed URI hash to be used when creating the database
+        # connection.
+        #
+        # @api private
+        # @since 0.1.0
+        def _parse_uri
+          parsed = URI.parse(@uri)
+          db = parsed.path.gsub(/^\//, '')
+
+          fail DatabaseAdapterNotFound if parsed.scheme != 'rethinkdb'
+          fail "No database specified in #{@uri}" if db.empty? || db.nil?
+
+          {
+            auth_key: parsed.password,
+            host: parsed.host,
+            port: parsed.port || 28_015,
+            db: db
+          }
+        end
 
         # Returns a collection from the given name.
         #

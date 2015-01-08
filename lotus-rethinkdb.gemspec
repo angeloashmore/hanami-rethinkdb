@@ -5,7 +5,7 @@ require 'lotus/rethinkdb/version'
 
 Gem::Specification.new do |spec|
   spec.name          = 'lotus-rethinkdb'
-  spec.version       = Lotus::Model::Adapters::Rethinkdb::VERSION
+  spec.version       = Lotus::Rethinkdb::VERSION
   spec.authors       = ['Angelo Ashmore']
   spec.email         = ['angeloashmore@gmail.com']
   spec.summary       = 'RethinkDB adapter for Lotus::Model'
