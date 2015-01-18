@@ -42,11 +42,15 @@ module Lotus
           # @api private
           # @since 0.1.0
           def insert(entity)
+            serialized_entity = _serialize(entity)
+
             response = _run do
-              super(_serialize(entity))
+              super(serialized_entity)
             end
 
-            response['generated_keys'].first
+            serialized_entity[_identity] = response['generated_keys'].first
+
+            _deserialize([serialized_entity]).first
           end
 
           # Updates the document corresponding to the given entity.
@@ -274,6 +278,16 @@ module Lotus
             @mapped_collection.deserialize(
               documents.map(&:with_indifferent_access)
             )
+          end
+
+          # Name of the identity field in database.
+          #
+          # @return [Symbol] the identity name
+          #
+          # @api private
+          # @since 0.2.1
+          def _identity
+            @mapped_collection.identity
           end
 
           # Returns a collection with the connection automatically included.

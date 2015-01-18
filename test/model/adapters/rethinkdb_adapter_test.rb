@@ -62,8 +62,8 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
       user   = TestUser.new
       device = TestDevice.new
 
-      @adapter.create(:test_users, user)
-      @adapter.create(:test_devices, device)
+      user   = @adapter.create(:test_users, user)
+      device = @adapter.create(:test_devices, device)
 
       @adapter.all(:test_users).must_equal [user]
       @adapter.all(:test_devices).must_equal [device]
@@ -75,30 +75,30 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
       let(:entity) { TestUser.new }
 
       it 'stores the document and assigns an id' do
-        @adapter.persist(collection, entity)
+        result = @adapter.persist(collection, entity)
 
-        entity.id.wont_be_nil
+        result.id.wont_be_nil
 
-        @adapter.find(collection, entity.id).must_equal entity
+        @adapter.find(collection, result.id).must_equal result
       end
     end
 
     describe 'when the given entity is persisted' do
       before do
-        @adapter.create(collection, entity)
+        @entity = @adapter.create(collection, entity)
       end
 
       let(:entity) { TestUser.new }
 
       it 'updates the document and leaves untouched the id' do
-        id = entity.id
+        id = @entity.id
         id.wont_be_nil
 
-        entity.name = 'L'
-        @adapter.persist(collection, entity)
+        @entity.name = 'L'
+        @adapter.persist(collection, @entity)
 
-        entity.id.must_equal id
-        @adapter.find(collection, entity.id).name.must_equal entity.name
+        @entity.id.must_equal id
+        @adapter.find(collection, @entity.id).name.must_equal @entity.name
       end
     end
   end
@@ -107,29 +107,29 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
     let(:entity) { TestUser.new }
 
     it 'stores the document and assigns an id' do
-      @adapter.create(collection, entity)
+      result = @adapter.create(collection, entity)
 
-      entity.id.wont_be_nil
+      result.id.wont_be_nil
 
-      @adapter.find(collection, entity.id).must_equal entity
+      @adapter.find(collection, result.id).must_equal result
     end
   end
 
   describe '#update' do
     before do
-      @adapter.create(collection, entity)
+      @entity = @adapter.create(collection, entity)
     end
 
     let(:entity) { TestUser.new(id: nil, name: 'L') }
 
     it 'stores the changes and leave the id untouched' do
-      id = entity.id
+      id = @entity.id
 
-      entity.name = 'MG'
-      @adapter.update(collection, entity)
+      @entity.name = 'MG'
+      @adapter.update(collection, @entity)
 
-      entity.id.must_equal id
-      @adapter.find(collection, entity.id).name.must_equal entity.name
+      @entity.id.must_equal id
+      @adapter.find(collection, @entity.id).name.must_equal @entity.name
     end
   end
 
@@ -160,26 +160,26 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
     describe 'when some documents are persisted' do
       before do
         @adapter.clear(collection)
-        @adapter.create(collection, entity)
+        @entity = @adapter.create(collection, entity)
       end
 
       let(:entity) { TestUser.new }
 
       it 'returns all of them' do
-        @adapter.all(collection).must_equal [entity]
+        @adapter.all(collection).must_equal [@entity]
       end
     end
   end
 
   describe '#find' do
     before do
-      @adapter.create(collection, entity)
+      @entity = @adapter.create(collection, entity)
     end
 
     let(:entity) { TestUser.new }
 
     it 'returns the document by id' do
-      @adapter.find(collection, entity.id).must_equal entity
+      @adapter.find(collection, @entity.id).must_equal @entity
     end
 
     it 'returns nil when the document cannot be found' do
@@ -205,8 +205,8 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
     describe 'when some documents are persisted' do
       before do
         @adapter.clear(:test_users)
-        @adapter.create(collection, entity1)
-        @adapter.create(collection, entity2)
+        @entity1 = @adapter.create(collection, entity1)
+        @entity2 = @adapter.create(collection, entity2)
       end
 
       let(:entity1) { TestUser.new }
@@ -263,7 +263,7 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
       @adapter.clear(collection)
     end
 
-    let(:user1) { TestUser.new(name: 'L', age: 32) }
+    let(:user1) { TestUser.new(name: 'L', age: '32') }
     let(:user2) { TestUser.new(name: 'MG', age: 31) }
 
     describe 'where' do
@@ -279,54 +279,54 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
 
       describe 'with a filled collection' do
         before do
-          @adapter.create(collection, user1)
-          @adapter.create(collection, user2)
+          @user1 = @adapter.create(collection, user1)
+          @user2 = @adapter.create(collection, user2)
         end
 
         it 'returns selected records' do
-          id = user1.id
+          id = @user1.id
 
           query = proc do
             where(id: id)
           end
 
           result = @adapter.query(collection, &query).all
-          result.must_equal [user1]
+          result.must_equal [@user1]
         end
 
         it 'can use multiple where conditions' do
-          id   = user1.id
-          name = user1.name
+          id   = @user1.id
+          name = @user1.name
 
           query = proc do
             where(id: id).where(name: name)
           end
 
           result = @adapter.query(collection, &query).all
-          result.must_equal [user1]
+          result.must_equal [@user1]
         end
 
         it 'can use multiple where conditions with "and" alias' do
-          id   = user1.id
-          name = user1.name
+          id   = @user1.id
+          name = @user1.name
 
           query = proc do
             where(id: id).and(name: name)
           end
 
           result = @adapter.query(collection, &query).all
-          result.must_equal [user1]
+          result.must_equal [@user1]
         end
 
         it 'can use a block' do
-          age = user1.age
+          age = @user1.age
 
           query = proc do
             where { |user| user['age'].eq(age) }
           end
 
           result = @adapter.query(collection, &query).all
-          result.must_equal [user1]
+          result.must_equal [@user1]
         end
 
         it 'raises an error if you dont specify condition or block' do
@@ -482,8 +482,8 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
 
       describe 'with a filled collection' do
         before do
-          @adapter.create(collection, user1)
-          @adapter.create(collection, user2)
+          @user1 = @adapter.create(collection, user1)
+          @user2 = @adapter.create(collection, user2)
         end
 
         it 'returns sorted records' do
@@ -492,7 +492,7 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
           end
 
           result = @adapter.query(collection, &query).all
-          result.must_equal [user2, user1]
+          result.must_equal [@user2, @user1]
         end
 
         it 'returns sorted records, using multiple columns' do
@@ -501,7 +501,7 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
           end
 
           result = @adapter.query(collection, &query).all
-          result.must_equal [user2, user1]
+          result.must_equal [@user2, @user1]
         end
 
         it 'returns sorted records, using multiple invokations' do
@@ -510,7 +510,7 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
           end
 
           result = @adapter.query(collection, &query).all
-          result.must_equal [user1, user2]
+          result.must_equal [@user1, @user2]
         end
       end
     end
@@ -528,8 +528,8 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
 
       describe 'with a filled collection' do
         before do
-          @adapter.create(collection, user1)
-          @adapter.create(collection, user2)
+          @user1 = @adapter.create(collection, user1)
+          @user2 = @adapter.create(collection, user2)
         end
 
         it 'returns sorted records' do
@@ -538,7 +538,7 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
           end
 
           result = @adapter.query(collection, &query).all
-          result.must_equal [user2, user1]
+          result.must_equal [@user2, @user1]
         end
       end
     end
@@ -556,8 +556,8 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
 
       describe 'with a filled collection' do
         before do
-          @adapter.create(collection, user1)
-          @adapter.create(collection, user2)
+          @user1 = @adapter.create(collection, user1)
+          @user2 = @adapter.create(collection, user2)
         end
 
         it 'returns reverse sorted records' do
@@ -566,7 +566,7 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
           end
 
           result = @adapter.query(collection, &query).all
-          result.must_equal [user1, user2]
+          result.must_equal [@user1, @user2]
         end
 
         it 'returns sorted records, using multiple columns' do
@@ -575,7 +575,7 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
           end
 
           result = @adapter.query(collection, &query).all
-          result.must_equal [user1, user2]
+          result.must_equal [@user1, @user2]
         end
 
         it 'returns sorted records, using multiple invokations' do
@@ -584,7 +584,7 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
           end
 
           result = @adapter.query(collection, &query).all
-          result.must_equal [user2, user1]
+          result.must_equal [@user2, @user1]
         end
       end
     end
@@ -602,13 +602,13 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
 
       describe 'with a filled collection' do
         before do
-          @adapter.create(collection, user1)
-          @adapter.create(collection, user2)
-          @adapter.create(collection, TestUser.new(name: user2.name))
+          @user1 = @adapter.create(collection, user1)
+          @user2 = @adapter.create(collection, user2)
+          @user3 = @adapter.create(collection, TestUser.new(name: user2.name))
         end
 
         it 'returns only the number of requested records' do
-          name = user2.name
+          name = @user2.name
 
           query = proc do
             where(name: name).limit(1)
