@@ -62,9 +62,13 @@ module Lotus
           # @api private
           # @since 0.1.0
           def update(entity)
-            _run do
-              super(_serialize(entity))
+            serialized_entity = _serialize(entity)
+
+            response = _run do
+              super(serialized_entity)
             end
+
+            _deserialize([serialized_entity]).first
           end
 
           # Deletes the current scope.
