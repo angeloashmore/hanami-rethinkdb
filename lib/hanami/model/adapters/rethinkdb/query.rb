@@ -1,8 +1,8 @@
 require 'forwardable'
-require 'lotus/utils/kernel'
+require 'hanami/utils/kernel'
 require 'rethinkdb'
 
-module Lotus
+module Hanami
   module Model
     module Adapters
       module Rethinkdb
@@ -17,7 +17,7 @@ module Lotus
         # @example
         #
         #   query.where(language: 'ruby')
-        #        .and(framework: 'lotus')
+        #        .and(framework: 'hanami')
         #        .desc(:users_count).all
         #
         #   # the documents are fetched only when we invoke #all
@@ -42,13 +42,13 @@ module Lotus
 
           # Initialize a query
           #
-          # @param collection [Lotus::Model::Adapters::Rethinkdb::Collection]
+          # @param collection [Hanami::Model::Adapters::Rethinkdb::Collection]
           #   the collection to query
           #
           # @param blk [Proc] an optional block that gets yielded in the
           #   context of the current query
           #
-          # @return [Lotus::Model::Adapters::Rethinkdb::Query]
+          # @return [Hanami::Model::Adapters::Rethinkdb::Query]
           def initialize(collection, context = nil, &blk)
             @collection, @context = collection, context
             @conditions = []
@@ -87,9 +87,9 @@ module Lotus
           # @example Multiple conditions
           #
           #   query.where(language: 'ruby')
-          #        .where(framework: 'lotus')
+          #        .where(framework: 'hanami')
           #
-          #   # => r.filter(language: 'ruby').filter('framework: 'lotus')
+          #   # => r.filter(language: 'ruby').filter('framework: 'hanami')
           #
           # @example Blocks
           #
@@ -189,7 +189,7 @@ module Lotus
           #
           # @since 0.1.0
           #
-          # @see Lotus::Model::Adapters::Rethinkdb::Query#desc
+          # @see Hanami::Model::Adapters::Rethinkdb::Query#desc
           #
           # @example Single field
           #
@@ -231,7 +231,7 @@ module Lotus
           #
           # @since 0.1.0
           #
-          # @see Lotus::Model::Adapters::Rethinkdb::Query#desc
+          # @see Hanami::Model::Adapters::Rethinkdb::Query#desc
           #
           # @example Single field
           #
@@ -364,7 +364,7 @@ module Lotus
           # This operation is idempotent, and the returned result didn't
           # fetched the documents yet.
           #
-          # @return [Lotus::Model::Adapters::Rethinkdb::Collection]
+          # @return [Hanami::Model::Adapters::Rethinkdb::Collection]
           #
           # @since 0.1.0
           def scoped
@@ -384,7 +384,7 @@ module Lotus
           # @api private
           # @since 0.1.0
           #
-          # @see Lotus::Model::Adapters:Rethinkdb::Query#apply
+          # @see Hanami::Model::Adapters:Rethinkdb::Query#apply
           def method_missing(m, *args, &blk)
             if @context.respond_to?(m)
               apply @context.public_send(m, *args, &blk)
@@ -400,20 +400,20 @@ module Lotus
           #
           # This is used to combine queries together in a Repository.
           #
-          # @param query [Lotus::Model::Adapters::Rethinkdb::Query] the query
+          # @param query [Hanami::Model::Adapters::Rethinkdb::Query] the query
           #   to apply
           #
-          # @return [Lotus::Model::Adapters::Rethinkdb::Query] a new query with
+          # @return [Hanami::Model::Adapters::Rethinkdb::Query] a new query with
           #   the merged conditions
           #
           # @api private
           # @since 0.1.0
           #
           # @example
-          #   require 'lotus/model'
+          #   require 'hanami/model'
           #
           #   class ArticleRepository
-          #     include Lotus::Repository
+          #     include Hanami::Repository
           #
           #     def self.by_author(author)
           #       query do

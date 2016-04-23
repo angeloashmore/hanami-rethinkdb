@@ -1,4 +1,4 @@
-module Lotus
+module Hanami
   # Adapter for RethinkDB databases
   #
   # @api private

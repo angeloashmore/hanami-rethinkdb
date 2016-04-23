@@ -1,28 +1,28 @@
 require 'test_helper'
 
-describe Lotus::Model::Adapters::RethinkdbAdapter do
+describe Hanami::Model::Adapters::RethinkdbAdapter do
   before do
     # rubocop:disable Documentation
     class TestUser
-      include Lotus::Entity
+      include Hanami::Entity
       attributes :id, :name, :age
     end
 
     class TestUserRepository
-      include Lotus::Repository
+      include Hanami::Repository
     end
 
     class TestDevice
-      include Lotus::Entity
+      include Hanami::Entity
       attributes :id
     end
 
     class TestDeviceRepository
-      include Lotus::Repository
+      include Hanami::Repository
     end
     # rubocop:enable Documentation
 
-    @mapper = Lotus::Model::Mapper.new do
+    @mapper = Hanami::Model::Mapper.new do
       collection :test_users do
         entity TestUser
 
@@ -38,7 +38,7 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
       end
     end.load!
 
-    @adapter = Lotus::Model::Adapters::RethinkdbAdapter.new(
+    @adapter = Hanami::Model::Adapters::RethinkdbAdapter.new(
       @mapper, RETHINKDB_TEST_URI
     )
   end

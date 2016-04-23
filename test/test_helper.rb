@@ -1,9 +1,10 @@
+$VERBOSE=nil # to avoid plenty of warnings
 require 'rubygems'
 require 'bundler/setup'
 
 require 'minitest/autorun'
 $LOAD_PATH.unshift 'lib'
-require 'lotus-rethinkdb'
+require 'hanami-rethinkdb'
 
 require 'coveralls'
 Coveralls.wear!
