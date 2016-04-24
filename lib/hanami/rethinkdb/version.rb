@@ -7,6 +7,6 @@ module Hanami
     # Defines the version
     #
     # @since 0.1.0
-    VERSION = '0.2.2'
+    VERSION = '0.2.3'
   end
 end
