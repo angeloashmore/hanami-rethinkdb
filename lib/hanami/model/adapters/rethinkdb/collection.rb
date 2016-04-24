@@ -1,11 +1,25 @@
 require 'delegate'
 require 'active_support/core_ext/hash/indifferent_access'
 require 'rethinkdb'
+require 'hanami/utils/kernel'
 
 module Hanami
   module Model
     module Adapters
       module Rethinkdb
+
+        require 'hanami/model/coercer'
+
+        class Now < Hanami::Model::Coercer
+          def self.dump(value)
+            Hanami::Utils::Kernel.Time(value)
+          end
+
+          def self.load(value)
+            value.to_datetime if value.respond_to? :to_datetime
+          end
+        end
+
         # Maps a RethinkDB database table and perfoms manipulations on it.
         #
         # @api private
