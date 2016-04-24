@@ -155,7 +155,10 @@ describe Hanami::Model::Adapters::RethinkdbAdapter do
   end
 
   describe '#create' do
-    let(:entity) { TestUser.new }
+    let(:entity)    { TestUser.new }
+    let(:exception) {
+      Hanami::Model::Adapters::RethinkdbIOError
+    }
 
     it 'stores the document and assigns an id' do
       result = @adapter.create(collection, entity)
@@ -164,6 +167,13 @@ describe Hanami::Model::Adapters::RethinkdbAdapter do
 
       @adapter.find(collection, result.id).must_equal result
     end
+
+    it 'raise an IOError when update a nil entity' do
+      err = -> {
+        @adapter.create(collection, nil)
+      }.must_raise(exception)
+    end
+
   end
 
   describe '#update' do
@@ -171,7 +181,17 @@ describe Hanami::Model::Adapters::RethinkdbAdapter do
       @entity = @adapter.create(collection, entity)
     end
 
-    let(:entity) { TestUser.new(id: nil, name: 'L') }
+    let(:entity)    { TestUser.new(id: nil, name: 'L') }
+    let(:exception) {
+      Hanami::Model::Adapters::RethinkdbIOError
+    }
+
+    it 'raise an IOError when update a nil entity' do
+      err = -> {
+        @adapter.create(collection, nil)
+      }.must_raise(exception)
+    end
+
 
     it 'stores the changes and leave the id untouched' do
       id = @entity.id
