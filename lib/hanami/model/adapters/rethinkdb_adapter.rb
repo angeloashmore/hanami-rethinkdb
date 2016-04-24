@@ -7,6 +7,17 @@ require 'rethinkdb'
 module Hanami
   module Model
     module Adapters
+
+      # Creates a RethinkdbIOError
+      #
+      # @return [Object]
+      class RethinkdbIOError < Hanami::Model::Error
+
+        def initialize(collection, operation)
+          super "You try to #{operation} a nil entity for collection <#{collection}"
+        end
+      end
+
       # Adapter for RethinkDB databases
       #
       # @see Hanami::Model::Adapters::Implementation
@@ -52,6 +63,7 @@ module Hanami
         # @api private
         # @since 0.1.0
         def persist(collection, entity)
+          ::Kernel.raise RethinkdbIOError.new(collection, 'IO') if entity.nil?
           if entity.id
             update(collection, entity)
           else
@@ -70,6 +82,7 @@ module Hanami
         # @api private
         # @since 0.1.0
         def create(collection, entity)
+          ::Kernel.raise Adapters::RethinkdbIOError.new(collection, 'create') if entity.nil?
           command(
             query(collection)
           ).create(entity)
@@ -85,6 +98,7 @@ module Hanami
         # @api private
         # @since 0.1.0
         def update(collection, entity)
+          ::Kernel.raise RethinkdbIOError.new(collection, 'update') if entity.nil?
           command(
             _find(collection, entity.id)
           ).update(entity)
@@ -98,6 +112,7 @@ module Hanami
         # @api private
         # @since 0.1.0
         def delete(collection, entity)
+          ::Kernel.raise RethinkdbIOError.new(collection, 'delete') if entity.nil?
           command(
             _find(collection, entity.id)
           ).delete
