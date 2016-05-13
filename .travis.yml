@@ -17,3 +17,4 @@ before_install:
   - sudo apt-get install rethinkdb
   - sudo cp /etc/rethinkdb/default.conf.sample /etc/rethinkdb/instances.d/instance1.conf
   - sudo service rethinkdb restart
+  - gem update bundler

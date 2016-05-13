@@ -1,15 +1,26 @@
-require 'lotus/model/adapters/abstract'
-require 'lotus/model/adapters/rethinkdb/collection'
-require 'lotus/model/adapters/rethinkdb/command'
-require 'lotus/model/adapters/rethinkdb/query'
+require 'hanami/model/adapters/abstract'
+require 'hanami/model/adapters/rethinkdb/collection'
+require 'hanami/model/adapters/rethinkdb/command'
+require 'hanami/model/adapters/rethinkdb/query'
 require 'rethinkdb'
 
-module Lotus
+module Hanami
   module Model
     module Adapters
+
+      # Creates a RethinkdbIOError
+      #
+      # @return [Object]
+      class RethinkdbIOError < Hanami::Model::Error
+
+        def initialize(collection, operation)
+          super "You try to #{operation} a nil entity for collection <#{collection}"
+        end
+      end
+
       # Adapter for RethinkDB databases
       #
-      # @see Lotus::Model::Adapters::Implementation
+      # @see Hanami::Model::Adapters::Implementation
       #
       # @api private
       # @since 0.1.0
@@ -25,19 +36,19 @@ module Lotus
 
         # Initialize the adapter.
         #
-        # Lotus::Model uses RethinkDB.
+        # Hanami::Model uses RethinkDB.
         #
         # @param mapper [Object] the database mapper
         # @param connection [RethinkDB::Connection] the database connection
         #
-        # @return [Lotus::Model::Adapters::RethinkdbAdapter]
+        # @return [Hanami::Model::Adapters::RethinkdbAdapter]
         #
-        # @see Lotus::Model::Mapper
+        # @see Hanami::Model::Mapper
         # @see http://rethinkdb.com/api/ruby/
         #
         # @api private
         # @since 0.1.0
-        def initialize(mapper, uri)
+        def initialize(mapper, uri, options={})
           super
           @connection = r.connect(_parse_uri)
         end
@@ -52,6 +63,7 @@ module Lotus
         # @api private
         # @since 0.1.0
         def persist(collection, entity)
+          ::Kernel.raise RethinkdbIOError.new(collection, 'IO') if entity.nil?
           if entity.id
             update(collection, entity)
           else
@@ -70,6 +82,7 @@ module Lotus
         # @api private
         # @since 0.1.0
         def create(collection, entity)
+          ::Kernel.raise Adapters::RethinkdbIOError.new(collection, 'create') if entity.nil?
           command(
             query(collection)
           ).create(entity)
@@ -85,6 +98,7 @@ module Lotus
         # @api private
         # @since 0.1.0
         def update(collection, entity)
+          ::Kernel.raise RethinkdbIOError.new(collection, 'update') if entity.nil?
           command(
             _find(collection, entity.id)
           ).update(entity)
@@ -98,6 +112,7 @@ module Lotus
         # @api private
         # @since 0.1.0
         def delete(collection, entity)
+          ::Kernel.raise RethinkdbIOError.new(collection, 'delete') if entity.nil?
           command(
             _find(collection, entity.id)
           ).delete
@@ -167,12 +182,12 @@ module Lotus
 
         # Fabricates a command for the given query.
         #
-        # @param query [Lotus::Model::Adapters::Rethinkdb::Query] the query
+        # @param query [Hanami::Model::Adapters::Rethinkdb::Query] the query
         # object to act on.
         #
-        # @return [Lotus::Model::Adapters::Rethinkdb::Command]
+        # @return [Hanami::Model::Adapters::Rethinkdb::Command]
         #
-        # @see Lotus::Model::Adapters::Rethinkdb::Command
+        # @see Hanami::Model::Adapters::Rethinkdb::Command
         #
         # @api private
         # @since 0.1.0
@@ -186,9 +201,9 @@ module Lotus
         # @param blk [Proc] a block of code to be executed in the context of
         #   the query.
         #
-        # @return [Lotus::Model::Adapters::Rethinkdb::Query]
+        # @return [Hanami::Model::Adapters::Rethinkdb::Query]
         #
-        # @see Lotus::Model::Adapters::Rethinkdb::Query
+        # @see Hanami::Model::Adapters::Rethinkdb::Query
         #
         # @api private
         # @since 0.1.0
@@ -222,9 +237,9 @@ module Lotus
         #
         # @param name [Symbol] a name of the collection (it must be mapped).
         #
-        # @return [Lotus::Model::Adapters::Rethinkdb::Collection]
+        # @return [Hanami::Model::Adapters::Rethinkdb::Collection]
         #
-        # @see Lotus::Model::Adapters::Rethinkdb::Collection
+        # @see Hanami::Model::Adapters::Rethinkdb::Collection
         #
         # @api private
         # @since 0.1.0

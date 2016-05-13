@@ -1,4 +1,4 @@
-module Lotus
+module Hanami
   # Adapter for RethinkDB databases
   #
   # @api private
@@ -7,6 +7,6 @@ module Lotus
     # Defines the version
     #
     # @since 0.1.0
-    VERSION = '0.2.2'
+    VERSION = '0.2.3'
   end
 end

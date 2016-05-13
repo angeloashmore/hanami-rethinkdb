@@ -1,17 +1,17 @@
-module Lotus
+module Hanami
   module Model
     module Adapters
       module Rethinkdb
         # Execute a command for the given query.
         #
-        # @see Lotus::Model::Adapters::Rethinkdb::Query
+        # @see Hanami::Model::Adapters::Rethinkdb::Query
         #
         # @api private
         # @since 0.1.0
         class Command
           # Initialize a command
           #
-          # @param query [Lotus::Model::Adapters::Rethinkdb::Query]
+          # @param query [Hanami::Model::Adapters::Rethinkdb::Query]
           #
           # @api private
           # @since 0.1.0
@@ -23,7 +23,7 @@ module Lotus
           #
           # @param entity [Object] the entity to persist
           #
-          # @see Lotus::Model::Adapters::Rethinkdb::Collection#insert
+          # @see Hanami::Model::Adapters::Rethinkdb::Collection#insert
           #
           # @return the primary key of the just created document.
           #
@@ -37,7 +37,7 @@ module Lotus
           #
           # @param entity [Object] the entity to persist
           #
-          # @see Lotus::Model::Adapters::Rethinkdb::Collection#update
+          # @see Hanami::Model::Adapters::Rethinkdb::Collection#update
           #
           # @api private
           # @since 0.1.0
@@ -49,8 +49,8 @@ module Lotus
           #
           # It's used to delete a single document or an entire database table.
           #
-          # @see Lotus::Model::Adapters::RethinkdbAdapter#delete
-          # @see Lotus::Model::Adapters::RethinkdbAdapter#clear
+          # @see Hanami::Model::Adapters::RethinkdbAdapter#delete
+          # @see Hanami::Model::Adapters::RethinkdbAdapter#clear
           #
           # @api private
           # @since 0.1.0

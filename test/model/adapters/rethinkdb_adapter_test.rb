@@ -1,28 +1,37 @@
 require 'test_helper'
 
-describe Lotus::Model::Adapters::RethinkdbAdapter do
+describe Hanami::Model::Adapters::RethinkdbAdapter do
   before do
     # rubocop:disable Documentation
     class TestUser
-      include Lotus::Entity
+      include Hanami::Entity
       attributes :id, :name, :age
     end
 
     class TestUserRepository
-      include Lotus::Repository
+      include Hanami::Repository
+    end
+
+    class TestUserWithDateTime
+      include Hanami::Entity
+      attributes :id, :name, :age, :created_at
+    end
+
+    class TestUserWithDateTimeRepository
+      include Hanami::Repository
     end
 
     class TestDevice
-      include Lotus::Entity
+      include Hanami::Entity
       attributes :id
     end
 
     class TestDeviceRepository
-      include Lotus::Repository
+      include Hanami::Repository
     end
     # rubocop:enable Documentation
 
-    @mapper = Lotus::Model::Mapper.new do
+    @mapper = Hanami::Model::Mapper.new do
       collection :test_users do
         entity TestUser
 
@@ -38,19 +47,61 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
       end
     end.load!
 
-    @adapter = Lotus::Model::Adapters::RethinkdbAdapter.new(
-      @mapper, RETHINKDB_TEST_URI
-    )
+    @adapter = Hanami::Model::Adapters::RethinkdbAdapter.new(@mapper,
+                                                             RETHINKDB_TEST_URI)
+
+    @mapper_datetime = Hanami::Model::Mapper.new do
+      collection :test_users_datetime do
+        entity TestUserWithDateTime
+
+        attribute :id,   String
+        attribute :name, String
+        attribute :age,  Integer
+        attribute :created_at, Hanami::Model::Adapters::Rethinkdb::Now
+      end
+    end.load!
+    @adapter_datetime = Hanami::Model::Adapters::RethinkdbAdapter.new(@mapper_datetime,
+                                                                      RETHINKDB_TEST_URI)
   end
 
   after do
     Object.send(:remove_const, :TestUser)
     Object.send(:remove_const, :TestUserRepository)
+    Object.send(:remove_const, :TestUserWithDateTime)
+    Object.send(:remove_const, :TestUserWithDateTimeRepository)
     Object.send(:remove_const, :TestDevice)
     Object.send(:remove_const, :TestDeviceRepository)
   end
 
   let(:collection) { :test_users }
+
+  describe Hanami::Model::Adapters::Rethinkdb::Now do
+    before do
+      @adapter_date = Hanami::Model::Adapters::RethinkdbAdapter.new(@mapper_datetime,
+                                                                    RETHINKDB_TEST_URI)
+      @created_at = DateTime.now
+      @user       = TestUserWithDateTime.new(created_at: @created_at)
+
+      before_ids  = @adapter_date.all(:test_users_datetime).map(&:id).sort
+      @user       = @adapter_date.create(:test_users_datetime, @user)
+      @after_ids  = @adapter_date.all(:test_users_datetime).map(&:id).sort
+
+      @rvalue     = Array.new(before_ids << @user.id).sort
+    end
+
+    after do
+      @adapter_date.clear(:test_users_datetime)
+    end
+
+    it 'must do not break @adapter instance' do
+      @after_ids.must_equal @rvalue
+    end
+
+    it 'store the created_at attribute' do
+      user = @adapter_date.find(:test_users_datetime, @user.id)
+      user.created_at.to_s.must_equal @created_at.to_s
+    end
+  end
 
   describe 'multiple collections' do
     before do
@@ -104,7 +155,10 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
   end
 
   describe '#create' do
-    let(:entity) { TestUser.new }
+    let(:entity)    { TestUser.new }
+    let(:exception) {
+      Hanami::Model::Adapters::RethinkdbIOError
+    }
 
     it 'stores the document and assigns an id' do
       result = @adapter.create(collection, entity)
@@ -113,6 +167,13 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
 
       @adapter.find(collection, result.id).must_equal result
     end
+
+    it 'raise an IOError when update a nil entity' do
+      err = -> {
+        @adapter.create(collection, nil)
+      }.must_raise(exception)
+    end
+
   end
 
   describe '#update' do
@@ -120,7 +181,17 @@ describe Lotus::Model::Adapters::RethinkdbAdapter do
       @entity = @adapter.create(collection, entity)
     end
 
-    let(:entity) { TestUser.new(id: nil, name: 'L') }
+    let(:entity)    { TestUser.new(id: nil, name: 'L') }
+    let(:exception) {
+      Hanami::Model::Adapters::RethinkdbIOError
+    }
+
+    it 'raise an IOError when update a nil entity' do
+      err = -> {
+        @adapter.create(collection, nil)
+      }.must_raise(exception)
+    end
+
 
     it 'stores the changes and leave the id untouched' do
       id = @entity.id

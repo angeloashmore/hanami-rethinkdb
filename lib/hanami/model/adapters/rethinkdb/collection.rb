@@ -1,11 +1,25 @@
 require 'delegate'
 require 'active_support/core_ext/hash/indifferent_access'
 require 'rethinkdb'
+require 'hanami/utils/kernel'
 
-module Lotus
+module Hanami
   module Model
     module Adapters
       module Rethinkdb
+
+        require 'hanami/model/coercer'
+
+        class Now < Hanami::Model::Coercer
+          def self.dump(value)
+            Hanami::Utils::Kernel.Time(value)
+          end
+
+          def self.load(value)
+            value.to_datetime if value.respond_to? :to_datetime
+          end
+        end
+
         # Maps a RethinkDB database table and perfoms manipulations on it.
         #
         # @api private
@@ -19,10 +33,10 @@ module Lotus
           #   database
           # @param dataset [RethinkDB::RQL] the dataset that maps a table or a
           #   subset of it
-          # @param mapped_collection [Lotus::Model::Mapping::Collection] a
+          # @param mapped_collection [Hanami::Model::Mapping::Collection] a
           #   mapped collection
           #
-          # @return [Lotus::Model::Adapters::Rethinkdb::Collection]
+          # @return [Hanami::Model::Adapters::Rethinkdb::Collection]
           #
           # @api private
           # @since 0.1.0
@@ -35,7 +49,7 @@ module Lotus
           #
           # @param entity [Object] the entity to persist
           #
-          # @see Lotus::Model::Adapters::Rethinkdb::Command#create
+          # @see Hanami::Model::Adapters::Rethinkdb::Command#create
           #
           # @return the primary key of the created document
           #
@@ -57,7 +71,7 @@ module Lotus
           #
           # @param entity [Object] the entity to persist
           #
-          # @see Lotus::Model::Adapters::Rethinkdb::Command#update
+          # @see Hanami::Model::Adapters::Rethinkdb::Command#update
           #
           # @api private
           # @since 0.1.0
@@ -73,7 +87,7 @@ module Lotus
 
           # Deletes the current scope.
           #
-          # @see Lotus::Model::Adapters::Rethinkdb::Command#delete
+          # @see Hanami::Model::Adapters::Rethinkdb::Command#delete
           #
           # @api private
           # @since 0.1.0
@@ -87,9 +101,9 @@ module Lotus
           #
           # @param args [Array] the array of arguments
           #
-          # @see Lotus::Model::Adapters::Rethinkdb::Query#where
+          # @see Hanami::Model::Adapters::Rethinkdb::Query#where
           #
-          # @return [Lotus::Model::Adapters::Rethinkdb::Collection] the filtered
+          # @return [Hanami::Model::Adapters::Rethinkdb::Collection] the filtered
           #   collection
           #
           # @api private
@@ -102,9 +116,9 @@ module Lotus
           #
           # @param args [Array] the array of arguments
           #
-          # @see Lotus::Model::Adapters::Rethinkdb::Query#pluck
+          # @see Hanami::Model::Adapters::Rethinkdb::Query#pluck
           #
-          # @return [Lotus::Model::Adapters::Rethinkdb::Collection] the filtered
+          # @return [Hanami::Model::Adapters::Rethinkdb::Collection] the filtered
           #   collection
           #
           # @api private
@@ -117,9 +131,9 @@ module Lotus
           #
           # @param args [Array] the array of arguments
           #
-          # @see Lotus::Model::Adapters::Rethinkdb::Query#has_fields
+          # @see Hanami::Model::Adapters::Rethinkdb::Query#has_fields
           #
-          # @return [Lotus::Model::Adapters::Rethinkdb::Collection] the filtered
+          # @return [Hanami::Model::Adapters::Rethinkdb::Collection] the filtered
           #   collection
           #
           # @api private
@@ -132,9 +146,9 @@ module Lotus
           #
           # @param args [Array] the array of arguments
           #
-          # @see Lotus::Model::Adapters::Rethinkdb::Query#limit
+          # @see Hanami::Model::Adapters::Rethinkdb::Query#limit
           #
-          # @return [Lotus::Model::Adapters::Rethinkdb::Collection] the filtered
+          # @return [Hanami::Model::Adapters::Rethinkdb::Collection] the filtered
           #   collection
           #
           # @api private
@@ -147,10 +161,10 @@ module Lotus
           #
           # @param args [Array] the array of arguments
           #
-          # @see Lotus::Model::Adapters::Rethinkdb::Query#order
-          # @see Lotus::Model::Adapters::Rethinkdb::Query#desc
+          # @see Hanami::Model::Adapters::Rethinkdb::Query#order
+          # @see Hanami::Model::Adapters::Rethinkdb::Query#desc
           #
-          # @return [Lotus::Model::Adapters::Rethinkdb::Collection] the filtered
+          # @return [Hanami::Model::Adapters::Rethinkdb::Collection] the filtered
           #   collection
           #
           # @api private
@@ -163,7 +177,7 @@ module Lotus
           #
           # @param args [Array] the array of arguments
           #
-          # @see Lotus::Model::Adapters::Rethinkdb::Query#sum
+          # @see Hanami::Model::Adapters::Rethinkdb::Query#sum
           #
           # @return [Numeric]
           #
@@ -179,7 +193,7 @@ module Lotus
           #
           # @param args [Array] the array of arguments
           #
-          # @see Lotus::Model::Adapters::Rethinkdb::Query#avg
+          # @see Hanami::Model::Adapters::Rethinkdb::Query#avg
           #
           # @return [Numeric]
           #
@@ -195,7 +209,7 @@ module Lotus
           #
           # @param args [Array] the array of arguments
           #
-          # @see Lotus::Model::Adapters::Rethinkdb::Query#max
+          # @see Hanami::Model::Adapters::Rethinkdb::Query#max
           #
           # @return [Numeric]
           #
@@ -211,7 +225,7 @@ module Lotus
           #
           # @param args [Array] the array of arguments
           #
-          # @see Lotus::Model::Adapters::Rethinkdb::Query#min
+          # @see Hanami::Model::Adapters::Rethinkdb::Query#min
           #
           # @return [Numeric]
           #
@@ -227,7 +241,7 @@ module Lotus
           #
           # @param args [Array] the array of arguments
           #
-          # @see Lotus::Model::Adapters::Rethinkdb::Query#count
+          # @see Hanami::Model::Adapters::Rethinkdb::Query#count
           #
           # @return [Numeric]
           #
@@ -271,7 +285,7 @@ module Lotus
           # Deserialize a set of documents fetched from the database.
           #
           # @note ActiveSupport's HashWithIndifferentAccess is used to solve an
-          #   incompatibility between Lotus::Model's use of symbols and
+          #   incompatibility between Hanami::Model's use of symbols and
           #   RethinkDB's use of strings.
           #
           # @param documents [Array] a set of raw documents
@@ -296,7 +310,7 @@ module Lotus
 
           # Returns a collection with the connection automatically included.
           #
-          # @return [Lotus::Model::Adapters::Rethinkdb::Collection]
+          # @return [Hanami::Model::Adapters::Rethinkdb::Collection]
           #
           # @api private
           # @since 0.1.0
